@@ -1,19 +1,27 @@
-# 🎈 Blank app template
 
-A simple Streamlit app template for you to modify!
+   `import streamlit as st
+import yfinance as yf
+import datetime
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+st.set_page_config(page_title="Stock & Crypto Analyzer", layout="wide")
+st.title("📈 Stock and Crypto Analyzer")
+st.markdown("הזן סמל מניה או מטבע (כמו 'AAPL', 'GOOG', 'BTC-USD')")
 
-### How to run it on your own machine
+symbol = st.text_input("סימול:", "AAPL")
+start_date = st.date_input("תאריך התחלה:", datetime.date.today() - datetime.timedelta(days=365*5))
+end_date = st.date_input("תאריך סיום:", datetime.date.today())
 
-1. Install the requirements
-
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+if st.button("נתח"):
+    with st.spinner("טוען נתונים..."):
+        try:
+            data = yf.download(symbol, start=start_date, end=end_date)
+            if data.empty:
+                st.error("לא נמצאו נתונים. בדוק את הסימול.")
+            else:
+                st.success(f"נמצאו {len(data)} ימי מסחר עבור {symbol}")
+                st.line_chart(data["Adj Close"], use_container_width=True)
+                st.subheader("תיאור סטטיסטי")
+                st.dataframe(data.describe())
+        except Exception as e:
+            st.error(f"שגיאה: {e}")
+``
